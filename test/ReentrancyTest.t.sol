@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity 0.8.26;
 
 import { Test, console } from "forge-std/Test.sol";
 import { Victim, Attacker } from "../src/Reentrancy.sol";
@@ -18,13 +18,19 @@ contract ReentrancyTest is Test {
     function testAttackerCanDrainEther() public {
         setUp();
 
-        console.log("[PRE-ATTACK] victim balance: ",  victim.getBalance());
-        console.log("[PRE-ATTACK] attacker balance: ", address(attacker).balance);
+        console.log("[PRE-ATTACK] victim balance: ", victim.getBalance());
+        console.log(
+            "[PRE-ATTACK] attacker balance: ",
+            address(attacker).balance
+        );
 
         attacker.attack();
 
         console.log("[POST-ATTACK] victim balance: ", victim.getBalance());
-        console.log("[POST-ATTACK] attacker balance: ", address(attacker).balance);
+        console.log(
+            "[POST-ATTACK] attacker balance: ",
+            address(attacker).balance
+        );
 
         assertEq(victim.getBalance(), 0);
         assertEq(address(attacker).balance, 101 ether);
