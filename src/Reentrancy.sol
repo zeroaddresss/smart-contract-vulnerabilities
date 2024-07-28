@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.26;
+pragma solidity ^0.8.26;
 
 /// @title A vulnerable contract allowing users to store and withdraw ether
 /// @notice You can deposit ether by calling the `deposit` function and withdraw ether by calling the `withdraw` function
@@ -15,7 +15,10 @@ contract Victim {
     }
 
     function withdraw(uint _amount) public {
-        require(balances[msg.sender] < _amount, Reentrancy__NotEnoughBalance());
+        require(
+            balances[msg.sender] >= _amount,
+            Reentrancy__NotEnoughBalance()
+        );
         (bool sent, ) = msg.sender.call{ value: _amount }("");
         require(sent, Reentrancy__WithdrawFailed());
         // here lies the vulnerability, as the function does not follow the CEI pattern
