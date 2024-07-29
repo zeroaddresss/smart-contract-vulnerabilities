@@ -8,13 +8,12 @@ Indeed, calling the `permit` function on WETH contract triggers the fallback fun
 The attack unfolds as follows:
   1. The victim gives infinite approval for WETH spending
   2. The victim deposits a certain amount of WETH
-  3. Attacker calls depositWithPermit, passes an empty signature and transfers all tokens from Alice into ERC20Bank, crediting the attacker for the deposit.
-  4. Attacker withdraws all tokens credited to him.
+  3. Attacker calls `depositWithPermit`, passes an empty signature and transfers all tokens from Alice into ERC20Bank, crediting himself for the deposit.
+  4. Attacker withdraws all the stolen WETH
 */
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/IERC20Permit.sol";
+import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Permit.sol";
 
 contract Bank {
     IERC20Permit public immutable token;
@@ -46,5 +45,31 @@ contract Bank {
     function withdraw(uint256 _amount) external {
         balances[msg.sender] -= _amount;
         token.transfer(msg.sender, _amount);
+    }
+
+    function getBalance(address _user) public view returns (uint256) {
+        return balances[_user];
+    }
+}
+
+contract WETH is ERC20 {
+    event Deposit(address indexed account, uint256 amount);
+    event Withdraw(address indexed account, uint256 amount);
+
+    constructor() ERC20("Wrapped Ether", "WETH") {}
+
+    fallback() external payable {
+        deposit();
+    }
+
+    function deposit() public payable {
+        _mint(msg.sender, msg.value);
+        emit Deposit(msg.sender, msg.value);
+    }
+
+    function withdraw(uint256 amount) external {
+        _burn(msg.sender, amount);
+        payable(msg.sender).transfer(amount);
+        emit Withdraw(msg.sender, amount);
     }
 }
