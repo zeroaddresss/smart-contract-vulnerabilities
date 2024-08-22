@@ -4,6 +4,7 @@ out = "out"
 libs = ["lib"]
 auto_detect_solc = true
 # solc = "0.8.26"
+via_ir = true
 
 remappings = ["@openzeppelin/=lib/openzeppelin-contracts/"]
 
