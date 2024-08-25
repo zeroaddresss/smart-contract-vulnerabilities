@@ -16,3 +16,5 @@ docs/
 .git/
 
 .DS_Store
+
+templates/
